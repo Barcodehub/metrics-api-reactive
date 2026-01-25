@@ -1,0 +1,90 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: metrics-api
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/bootcamp_metrics
+      database: bootcamp_metrics
+  # webflux:
+  #   base-path: /metrics  # ELIMINADO - causaba duplicación de rutas
+
+jwt:
+  secret: mySecretKeyForJWT2026ThisIsA32CharacterKeyMinimumForHS256Algorithm
+  expiration: 3600000
+
+external:
+  bootcamp:
+    base-url: http://localhost:8082
+  capacity:
+    base-url: http://localhost:8080/capacity
+  user:
+    base-url: http://localhost:8083
+
+management:
+  tracing:
+    sampling:
+      probability: 0.0
+    baggage:
+      correlation:
+        fields:
+          - messageId
+          - x-message-id
+      remote-fields: messageId,x-message-id
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, loggers
+      base-path: /
+      path-mapping:
+        health: actuator/health
+        metrics: actuator/metrics
+        loggers: metrics-api/actuator/loggers
+  endpoint:
+    health:
+      probes:
+        enabled: false
+      show-details: "always"
+  health:
+    circuitbreakers:
+      enabled: true
+    diskspace:
+      enabled: false
+    mongo:
+      enabled: true
+    ping:
+      enabled: false
+    refresh:
+      enabled: false
+
+resilience4j:
+  circuitbreaker:
+    circuit-breaker-aspect-order: 1
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 10s
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 100
+        slow-call-duration-threshold: 5s
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 2000ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2.0
+        maxWaitDuration: 10000ms
+        initialInterval: 500ms
+
+logging:
+  level:
+    root: INFO
+    com.example.resilient_api: DEBUG
+    org.springframework.data.mongodb: DEBUG
