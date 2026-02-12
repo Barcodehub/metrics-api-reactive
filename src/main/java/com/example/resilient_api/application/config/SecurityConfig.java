@@ -27,6 +27,9 @@ public class SecurityConfig {
                         // Actuator - público
                         .pathMatchers("/actuator/**").permitAll()
 
+                        // Swagger/OpenAPI - público
+                        .pathMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
+
                         // ===== ENDPOINTS ADMIN (solo isAdmin = true) =====
                         // Ver el bootcamp más popular - solo admin
                         .pathMatchers(HttpMethod.GET, "/metrics/bootcamp/most-popular").hasRole("ADMIN")

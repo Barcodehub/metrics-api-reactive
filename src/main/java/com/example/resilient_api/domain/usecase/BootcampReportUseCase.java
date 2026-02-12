@@ -36,13 +36,7 @@ public class BootcampReportUseCase implements BootcampReportServicePort {
                 .flatMap(bootcampReportPersistencePort::save)
                 .doOnSuccess(saved -> log.info("Bootcamp report saved successfully for bootcampId: {} with messageId: {}", bootcampId, messageId))
                 .doOnError(error -> log.error("Error saving bootcamp report for bootcampId: {} with messageId: {}", bootcampId, messageId, error))
-                .subscribeOn(Schedulers.boundedElastic()) // Ejecutar en hilo separado
-                .then() // Convertir a Mono<Void>
-                .onErrorResume(ex -> {
-                    // No propagar el error, solo registrarlo
-                    log.error("Failed to register bootcamp report asynchronously for bootcampId: {} with messageId: {}", bootcampId, messageId, ex);
-                    return Mono.empty();
-                });
+                .then(); // Convertir a Mono<Void>
     }
 
     @Override
